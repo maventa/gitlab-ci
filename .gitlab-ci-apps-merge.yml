@@ -1,0 +1,48 @@
+.git_tools_merge: &git_tools_merge |
+
+  function init_git_user {
+    git config --global user.email "$GITLAB_USER_EMAIL"
+    git config --global user.name  "$GITLAB_USER_NAME"
+  }
+
+  function init_ssh {
+    mkdir -p ~/.ssh && echo "$MERGE_SSH_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+    ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+  }
+
+  function git_tools_merge {
+    init_git_user
+    init_ssh
+
+    COMPLETE_URL=$(echo $CI_REPOSITORY_URL | perl -pe 's#.*@(.+?(\:\d+)?)/#git@\1:#')
+    echo "Merging $CI_BUILD_REF_NAME/$CI_BUILD_REF into $TARGET_BRANCH for $COMPLETE_URL"
+    git remote set-url --push origin $COMPLETE_URL \
+    && git checkout $TARGET_BRANCH \
+    && git merge -m "Merge branch '$CI_BUILD_REF_NAME' at commit '$CI_BUILD_REF' into $TARGET_BRANCH" --no-ff $CI_BUILD_REF \
+    && git push origin $TARGET_BRANCH
+    if [ $? -ne 0 ]; then
+      exit $?
+    fi
+  }
+
+.merge: &merge
+  stage: merge
+  before_script:
+    - *git_tools_merge
+  script:
+    - git_tools_merge
+
+stage_merge:
+  <<: *merge
+  variables:
+    TARGET_BRANCH: stage
+  only:
+    - dev
+
+prod_merge:
+  <<: *merge
+  variables:
+    TARGET_BRANCH: prod
+  when: manual
+  only:
+    - master
