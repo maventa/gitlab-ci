@@ -27,6 +27,7 @@
 
 .merge: &merge
   stage: merge
+  image: ruby:2.5.1
   before_script:
     - *git_tools_merge
   script:
