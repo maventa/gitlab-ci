@@ -1,0 +1,11 @@
+.cache: &cache
+  stage: test
+  variables:
+    LANG: "C.UTF-8"
+    LANGUAGE: "C.UTF-8"
+    LC_ALL: "C.UTF-8"
+    CACHE_LOCATION: './.cache'
+  cache:
+    key: ${CI_JOB_NAME}
+    paths:
+      - ./.cache

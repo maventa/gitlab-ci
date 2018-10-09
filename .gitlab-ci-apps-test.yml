@@ -1,0 +1,16 @@
+.test: &test
+  extends: .cache
+  variables:
+    RAILS_ENV: "test"
+    RACK_ENV: "test"
+    DATABASE_URL: "mysql2://mariadb/$CI_PROJECT_NAME"
+    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
+  artifacts:
+    paths:
+      - log/
+    when: on_failure
+    expire_in: 1 day
+  except:
+    - stage
+    - prod
