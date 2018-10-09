@@ -1,4 +1,4 @@
-.test: &test
+.apps-test: &apps-test
   extends: .cache
   variables:
     RAILS_ENV: "test"
