@@ -70,7 +70,7 @@ dependency_scanning:
       - $DEPENDENCY_SCANNING_DISABLED
 
 # clair
-container_scanning:
+container_scanning: &container_scanning
   stage: analysis
   image: docker:stable
   variables:
@@ -90,6 +90,15 @@ container_scanning:
   except:
     variables:
       - $CONTAINER_SCANNING_DISABLED
+
+manual_container_scanning:
+  <<: *container_scanning
+  only:
+    - branches
+  except:
+    - master
+    - dev
+  when: manual
 
 
 # ---------------------------------------------------------------------------
