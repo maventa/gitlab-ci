@@ -14,8 +14,9 @@ code_quality:
   image: ruby:2.5.1
   allow_failure: true
   script:
-    - gem install rubycritic --install-dir .cache/
-    - .cache/bin/rubycritic --no-browser
+    - export GEM_HOME=.cache/
+    - gem install rubycritic
+    - rubycritic --no-browser
   artifacts:
     expire_in: 1 month
     paths: [tmp/rubycritic/overview.html]
@@ -53,9 +54,10 @@ dependency_scanning:
   image: ruby:2.5.1
   allow_failure: true
   script:
-    - gem install bundler-audit --install-dir .cache/
-    - .cache/bin/bundle-audit check --update
-    - .cache/bin/bundle outdated --parseable
+    - export GEM_HOME=.cache/
+    - gem install bundler-audit
+    - bundle audit check --update
+    - bundle outdated --parseable
   only:
     - branches
   except:
