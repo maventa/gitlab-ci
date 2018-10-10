@@ -21,4 +21,6 @@ manual_build_docker_image:
   except:
     - master
     - dev
+    - stage
+    - prod
   when: manual
