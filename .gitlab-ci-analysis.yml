@@ -55,12 +55,9 @@ dependency_scanning:
   allow_failure: true
   script:
     - export GEM_HOME=.cache/
-    - gem install bundler
-    - gem install bundler-audit
-    - .cache/bin/bundler-audit check --update > bundler_audit.txt || true
-    - .cache/bin/bundler outdated --parseable > bundler_outdated.txt || true
-    - cat bundler_audit.txt
-    - cat bundler_outdated.txt
+    - gem install bundler bundler-audit
+    - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
+    - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
   artifacts:
     expire_in: 1 month
     paths:
