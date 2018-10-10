@@ -16,7 +16,7 @@ code_quality:
   script:
     - export GEM_HOME=.cache/
     - gem install rubycritic
-    - rubycritic --no-browser
+    - .cache/bin/rubycritic --no-browser
   artifacts:
     expire_in: 1 month
     paths: [tmp/rubycritic/overview.html]
@@ -56,8 +56,8 @@ dependency_scanning:
   script:
     - export GEM_HOME=.cache/
     - gem install bundler-audit
-    - bundle audit check --update
-    - bundle outdated --parseable
+    - .cache/bin/bundler-audit check --update
+    - .cache/bin/bundler outdated --parseable
   only:
     - branches
   except:
