@@ -7,7 +7,7 @@ variables:
   POSTGRES_ENABLED: "true"
   POSTGRES_DB: $CI_ENVIRONMENT_SLUG
 
-# RubyCritic
+# rubycritic
 code_quality:
   extends: .cache
   stage: analysis
@@ -19,14 +19,14 @@ code_quality:
     - .cache/bin/rubycritic --no-browser
   artifacts:
     expire_in: 1 month
-    paths: [tmp/rubycritic/overview.html]
+    paths: [tmp/rubycritic/*]
   only:
     - branches
   except:
     variables:
       - $CODE_QUALITY_DISABLED
 
-# This is using brakeman/find-sec-bugs/NodeJsScan
+# brakeman/find-sec-bugs/NodeJsScan
 sast:
   stage: analysis
   image: docker:stable
@@ -47,7 +47,7 @@ sast:
     variables:
       - $SAST_DISABLED
 
-# This is using gemnasium/bundler-audit/retire.js
+# bundler-audit
 dependency_scanning:
   extends: .cache
   stage: analysis
@@ -55,6 +55,7 @@ dependency_scanning:
   allow_failure: true
   script:
     - export GEM_HOME=.cache/
+    - gem install bundler
     - gem install bundler-audit
     - .cache/bin/bundler-audit check --update
     - .cache/bin/bundler outdated --parseable
@@ -64,7 +65,7 @@ dependency_scanning:
     variables:
       - $DEPENDENCY_SCANNING_DISABLED
 
-# This is using clair
+# clair
 container_scanning:
   stage: analysis
   image: docker:stable
