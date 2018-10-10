@@ -57,8 +57,15 @@ dependency_scanning:
     - export GEM_HOME=.cache/
     - gem install bundler
     - gem install bundler-audit
-    - .cache/bin/bundler-audit check --update
-    - .cache/bin/bundler outdated --parseable
+    - .cache/bin/bundler-audit check --update > bundler_audit.txt
+    - .cache/bin/bundler outdated --parseable > bundler_outdated.txt
+    - cat bundler_audit.txt
+    - cat bundler_outdated.txt
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - bundler_audit.txt
+      - bundler_outdated.txt
   only:
     - branches
   except:
