@@ -15,7 +15,7 @@ code_quality:
   allow_failure: true
   script:
     - gem install rubycritic --install-dir .cache/
-    - bundle exec rubycritic --no-browser
+    - rubycritic --no-browser
   artifacts:
     expire_in: 1 month
     paths: [tmp/rubycritic/overview.html]
@@ -54,15 +54,8 @@ dependency_scanning:
   allow_failure: true
   script:
     - gem install bundler-audit --install-dir .cache/
-    - bundle audit check --update > bundle_audit_check.txt
-    - cat bundle_audit_check.txt
-    - bundle outdated --parseable > bundle_outdated.txt
-    - cat bundle_outdated.txt
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - bundle_outdated.txt
-      - bundle_audit_check.txt
+    - bundle audit check --update
+    - bundle outdated --parseable
   only:
     - branches
   except:
