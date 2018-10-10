@@ -1,5 +1,6 @@
 .apps-test: &apps-test
   extends: .cache
+  coverage: '/\(\d+.\d+\%\) covered/'
   variables:
     RAILS_ENV: "test"
     RACK_ENV: "test"
