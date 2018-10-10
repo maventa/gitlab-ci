@@ -7,20 +7,19 @@ variables:
   POSTGRES_ENABLED: "true"
   POSTGRES_DB: $CI_ENVIRONMENT_SLUG
 
-# This is using CodeClimate
+# RubyCritic
 code_quality:
+  extends: .cache
   stage: analysis
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
+  image: ruby:2.5.1
   allow_failure: true
-  services:
-    - docker:stable-dind
   script:
-    - setup_docker
-    - code_quality
+    - echo "gem 'rubycritic'" >> Gemfile
+    - bundle install --deployment --jobs $(nproc) --path=$CACHE_LOCATION
+    - bundle exec rubycritic --no-browser
   artifacts:
-    paths: [gl-code-quality-report.json]
+    expire_in: 1 month
+    paths: [tmp/rubycritic/overview.html]
   only:
     - branches
   except:
@@ -40,6 +39,7 @@ sast:
     - setup_docker
     - sast
   artifacts:
+    expire_in: 1 month
     paths: [gl-sast-report.json]
   only:
     - branches
@@ -49,18 +49,22 @@ sast:
 
 # This is using gemnasium/bundler-audit/retire.js
 dependency_scanning:
+  extends: .cache
   stage: analysis
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
+  image: ruby:2.5.1
   allow_failure: true
-  services:
-    - docker:stable-dind
   script:
-    - setup_docker
-    - dependency_scanning
+    - echo "gem 'bundler-audit'" >> Gemfile
+    - bundle install --deployment --jobs $(nproc) --path=$CACHE_LOCATION
+    - bundle audit check --update > bundle_audit_check.txt
+    - cat bundle_audit_check.txt
+    - bundle outdated --parseable > bundle_outdated.txt
+    - cat bundle_outdated.txt
   artifacts:
-    paths: [gl-dependency-scanning-report.json]
+    expire_in: 1 month
+    paths:
+      - bundle_outdated.txt
+      - bundle_audit_check.txt
   only:
     - branches
   except:
@@ -80,9 +84,11 @@ container_scanning:
     - setup_docker
     - container_scanning
   artifacts:
+    expire_in: 1 month
     paths: [gl-container-scanning-report.json]
   only:
-    - branches
+    - stage
+    - prod
   except:
     variables:
       - $CONTAINER_SCANNING_DISABLED
