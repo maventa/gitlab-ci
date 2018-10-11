@@ -58,8 +58,7 @@ dast:
   script:
     - setup_configs
     - docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASSWORD
-    - docker pull $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
-    - docker run -p $DAST_ON_PORT:$DAST_ON_PORT -v $CI_PROJECT_DIR/config:/app/config $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
+    - docker run -d -p $DAST_ON_PORT:$DAST_ON_PORT -v $CI_PROJECT_DIR/config:/app/config $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
     - docker run -u zap -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -host http://docker -port $DAST_ON_PORT -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
   artifacts:
     paths: [gl-dast-report.json]
