@@ -47,6 +47,33 @@ sast:
     variables:
       - $SAST_DISABLED
 
+dast:
+  stage: analysis
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - setup_configs
+    - docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASSWORD
+    - docker pull $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
+    - docker run -p $DAST_ON_PORT:$DAST_ON_PORT -v $CI_PROJECT_DIR:/app/config $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
+    - docker run -u zap -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -host http://docker -port $DAST_ON_PORT -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+  artifacts:
+    paths: [gl-dast-report.json]
+  only:
+    refs:
+      - branches
+    variables:
+      - $DAST_ON_PORT
+  except:
+    refs:
+      - master
+    variables:
+      - $DAST_DISABLED
+
 # bundler-audit
 dependency_scanning:
   extends: .cache
@@ -118,6 +145,13 @@ manual_container_scanning:
                --volume "$PWD:/code" \
                --volume /var/run/docker.sock:/var/run/docker.sock \
                "registry.gitlab.com/gitlab-org/security-products/sast:$SP_VERSION" /app/bin/run /code
+  }
+
+  function setup_configs() {
+    echo 'Using config/*.yml.example to prepare config/*.yml...'
+    for file in `ls config/*.yml.example`; do
+      cp $file ${file%%.*}.yml
+    done
   }
 
   function container_scanning() {
