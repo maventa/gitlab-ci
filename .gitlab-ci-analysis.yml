@@ -21,10 +21,11 @@ code_quality:
     expire_in: 1 month
     paths: [tmp/rubycritic/*]
   only:
-    - branches
+    refs:
+      - branches
     variables:
       - $CODE_QUALITY_ENABLED
-
+ 
 # brakeman/find-sec-bugs/NodeJsScan
 sast:
   stage: analysis
@@ -41,7 +42,8 @@ sast:
     expire_in: 1 month
     paths: [gl-sast-report.json]
   only:
-    - branches
+    refs:
+      - branches
     variables:
       - $SAST_ENABLED
 
@@ -61,7 +63,8 @@ dast:
   artifacts:
     paths: [gl-dast-report.json]
   only:
-    - master
+    refs:
+      - master
     variables:
       - $DAST_ENABLED
       - $DAST_PORT
@@ -83,7 +86,8 @@ dependency_scanning:
       - bundler_audit.txt
       - bundler_outdated.txt
   only:
-    - branches
+    refs:
+      - branches
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
 
@@ -103,8 +107,9 @@ container_scanning: &container_scanning
     expire_in: 1 month
     paths: [gl-container-scanning-report.json]
   only:
-    - stage
-    - prod
+    refs:
+      - stage
+      - prod
     variables:
       - $CONTAINER_SCANNING_ENABLED
 
