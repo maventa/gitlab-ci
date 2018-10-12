@@ -158,6 +158,8 @@ git_secrets_scanning:
     expire_in: 1 month
     paths: [trufflehog.txt]
   only:
+    refs:
+      - branches
     variables:
       - $GIT_SECRETS_SCANNING_ENABLED
 
