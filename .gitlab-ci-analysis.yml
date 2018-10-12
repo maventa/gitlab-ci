@@ -189,7 +189,7 @@ manual_container_scanning:
 
 
   function bundle_install_for_gems() {
-    if [ -z "$YES_THIS_IS_THE_GEMS_GROUP" ]; then
+    if [ -n "$YES_THIS_IS_THE_GEMS_GROUP" ]; then
       bundle install --deployment --jobs $(nproc) --path=$CACHE_LOCATION
     fi
   }
