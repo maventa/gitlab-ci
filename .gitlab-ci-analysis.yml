@@ -96,6 +96,7 @@ dependency_scanning:
   allow_failure: true
   script:
     - export GEM_HOME=.cache/
+    - bundle_install_for_gems
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
@@ -184,6 +185,13 @@ manual_container_scanning:
     echo "Waiting for clair daemon to start"
     while( ! wget -T 10 -q -O /dev/null http://docker:6060/v1/namespaces ) ; do sleep 1 ; echo -n "." ; if [ $retries -eq 10 ] ; then echo " Timeout, aborting." ; exit 1 ; fi ; retries=$(($retries+1)) ; done
     ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME || true
+  }
+
+
+  function bundle_install_for_gems() {
+    if [ -z "$YES_THIS_IS_THE_GEMS_GROUP" ]; then
+      bundle install --deployment --jobs $(nproc) --path=$CACHE_LOCATION
+    fi
   }
 
 
