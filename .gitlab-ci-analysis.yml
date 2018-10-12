@@ -35,7 +35,7 @@ brakeman:
   script:
     - export GEM_HOME=.cache/
     - gem install brakeman
-    - .cache/bin/brakeman --force-scan --run-all-checks --quiet | tee brakeman.txt
+    - .cache/bin/brakeman --force-scan --run-all-checks --quiet | tee brakeman.txt || true
   artifacts:
     expire_in: 1 month
     paths: [brakeman.txt]
