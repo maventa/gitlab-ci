@@ -142,6 +142,26 @@ manual_container_scanning:
     - dev
   when: manual
 
+# git secrets / trufflehog
+git_secrets_scanning:
+  stage: analysis
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - setup_docker
+    - docker run -v $CI_PROJECT_DIR:/git mojdigitalstudio/git-secrets-ahoy --json | tee trufflehog.txt || true
+  artifacts:
+    expire_in: 1 month
+    paths: [trufflehog.txt]
+  only:
+    variables:
+      - $GIT_SECRETS_SCANNING_ENABLED
+
+
 
 # ---------------------------------------------------------------------------
 
