@@ -25,7 +25,26 @@ code_quality:
       - branches
     variables:
       - $CODE_QUALITY_ENABLED
- 
+
+# brakeman
+brakeman:
+  extends: .cache
+  stage: analysis
+  image: ruby:2.5.1
+  allow_failure: true
+  script:
+    - export GEM_HOME=.cache/
+    - gem install brakeman
+    - .cache/bin/brakeman --force-scan --run-all-checks --quiet | tee brakeman.txt
+  artifacts:
+    expire_in: 1 month
+    paths: [brakeman.txt]
+  only:
+    refs:
+      - branches
+    variables:
+      - $BRAKEMAN_ENABLED
+
 # brakeman/find-sec-bugs/NodeJsScan
 sast:
   stage: analysis
