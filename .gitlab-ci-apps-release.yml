@@ -1,0 +1,55 @@
+.prepare_release: &prepare_release |
+
+  function init_git_user {
+    git config --global user.email "$GITLAB_USER_EMAIL"
+    git config --global user.name  "$GITLAB_USER_NAME"
+  }
+
+  function init_ssh {
+    mkdir -p ~/.ssh && echo "$MERGE_SSH_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+    ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+  }
+
+  function git_tools_changelog {
+    init_git_user
+    init_ssh
+
+    COMPLETE_URL=$(echo $CI_REPOSITORY_URL | perl -pe 's#.*@(.+?(\:\d+)?)/#git@\1:#')
+
+    git remote set-url --push origin $COMPLETE_URL \
+    && gem install project_support --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST \
+    && project_support --update-changelog \
+    && git checkout $CI_COMMIT_REF_NAME \
+    && git commit --allow-empty -m "Preparing release for $CI_COMMIT_SHA [release]" CHANGELOG.md changelogs/ \
+    && git push origin $CI_COMMIT_REF_NAME
+
+    if [ $? -ne 0 ]; then
+      exit $?
+    fi
+  }
+
+.release: &release
+  stage: release
+  image: ruby:2.5.1
+  before_script:
+    - *prepare_release
+  script:
+    - git_tools_changelog
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[release\]/
+
+stage_🚀:
+  <<: *release
+  only:
+    refs:
+      - dev
+
+prod_🚀:
+  <<: *release
+  when: manual
+  variables:
+    DELETE_UNRELEASED: 'true'
+  only:
+    refs:
+      - master

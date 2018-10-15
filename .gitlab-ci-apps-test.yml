@@ -13,5 +13,8 @@
     when: on_failure
     expire_in: 1 day
   except:
-    - stage
-    - prod
+    refs:
+      - stage
+      - prod
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[release\]/

@@ -15,10 +15,10 @@
     init_ssh
 
     COMPLETE_URL=$(echo $CI_REPOSITORY_URL | perl -pe 's#.*@(.+?(\:\d+)?)/#git@\1:#')
-    echo "Merging $CI_BUILD_REF_NAME/$CI_BUILD_REF into $TARGET_BRANCH for $COMPLETE_URL"
+    echo "Merging $CI_COMMIT_REF_NAME/$CI_COMMIT_SHA into $TARGET_BRANCH for $COMPLETE_URL"
     git remote set-url --push origin $COMPLETE_URL \
     && git checkout $TARGET_BRANCH \
-    && git merge -m "Merge branch '$CI_BUILD_REF_NAME' at commit '$CI_BUILD_REF' into $TARGET_BRANCH" --no-ff $CI_BUILD_REF \
+    && git merge -m "Merge branch '$CI_COMMIT_REF_NAME' at commit '$CI_COMMIT_SHA' into $TARGET_BRANCH" --no-ff $CI_COMMIT_SHA \
     && git push origin $TARGET_BRANCH
     if [ $? -ne 0 ]; then
       exit $?
@@ -38,12 +38,18 @@ stage_merge:
   variables:
     TARGET_BRANCH: stage
   only:
-    - dev
+    refs:
+      - dev
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[release\]/
 
 prod_merge:
   <<: *merge
   variables:
     TARGET_BRANCH: prod
-  when: manual
   only:
-    - master
+    refs:
+      - master
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /\[release\]/
+
