@@ -100,7 +100,7 @@ dependency_scanning:
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
-    - wget --quiet -O - https://www.ruby-lang.org/en/downloads/releases/ | grep '<td>Ruby' | cut -d ">" -f 2 | grep '</td' | grep -v preview | cut -d "<" -f 1 | cut -d " " -f 2 | grep -v rc | sort | awk -v x=$(bundle platform --ruby | cut -d "p" -f 1 | cut -d " " -f 2) '$1 > x' > new_ruby_versions.txt
+    - wget --quiet -O - https://www.ruby-lang.org/en/downloads/releases/ | grep '<td>Ruby' | cut -d ">" -f 2 | grep '</td' | grep -v preview | cut -d "<" -f 1 | cut -d " " -f 2 | grep -v rc | sort | awk -v x=$(bundle platform --ruby | cut -d "p" -f 1 | cut -d " " -f 2) '$1 > x' | sed -e 's/$/ new Ruby version available/' > new_ruby_versions.txt
   artifacts:
     expire_in: 1 month
     paths:
@@ -169,8 +169,9 @@ analysis_report:
   stage: analysis_report
   image: ruby:2.5.1
   script:
-    - gem install project_support -v 2.0.8.2.gdffa1a4 --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
+    - gem install project_support -v 2.0.8.3.g02a425a --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
     - ai_report_issues -i bundler_outdated.txt
+    - ai_report_issues -i new_ruby_versions.txt
   dependencies:
     - code_quality
     - brakeman
