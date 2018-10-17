@@ -97,7 +97,7 @@ dependency_scanning:
   script:
     - export GEM_HOME=.cache/
     - bundle_install_for_gems
-    - grep "ruby " > current_ruby_version.txt
+    - grep "ruby " Gemfile > current_ruby_version.txt
     - grep -v "ruby " Gemfile > temp && mv temp Gemfile
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
