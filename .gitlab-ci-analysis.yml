@@ -163,6 +163,20 @@ git_secrets_scanning:
     variables:
       - $GIT_SECRETS_SCANNING_ENABLED
 
+analysis_report:
+  stage: analysis_report
+  image: ruby:2.5.1
+  script:
+    - gem install project_support -v 2.0.8.2.gdffa1a4 --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
+    - ai_report_issues -i bundler_outdated.txt
+  dependencies:
+    - code_quality
+    - brakeman
+    - sast
+    - dast
+    - dependency_scanning
+    - container_scanning
+    - git_secrets_scanning
 
 
 # ---------------------------------------------------------------------------
