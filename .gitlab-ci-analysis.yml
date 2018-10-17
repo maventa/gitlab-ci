@@ -100,11 +100,13 @@ dependency_scanning:
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
+    - wget --quiet -O - https://www.ruby-lang.org/en/downloads/releases/ | grep '<td>Ruby' | cut -d ">" -f 2 | grep '</td' | grep -v preview | cut -d "<" -f 1 | cut -d " " -f 2 | grep -v rc | sort | awk -v x=$(bundle platform --ruby | cut -d "p" -f 1 | cut -d " " -f 2) '$1 > x' > new_ruby_versions.txt
   artifacts:
     expire_in: 1 month
     paths:
       - bundler_audit.txt
       - bundler_outdated.txt
+      - new_ruby_versions.txt
   only:
     refs:
       - branches
