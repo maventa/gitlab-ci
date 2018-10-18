@@ -200,7 +200,8 @@ analysis_report:
     - brakeman
     - sast
     - dast
-    - dependency_scanning
+    - dependency_scanning:apps
+    - dependency_scanning:gems
     - container_scanning
     - git_secrets_scanning
 
