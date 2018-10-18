@@ -38,7 +38,7 @@ brakeman:
     - .cache/bin/brakeman --format json --force-scan --run-all-checks --quiet | tee brakeman.json || true
   artifacts:
     expire_in: 1 month
-    paths: [brakeman.txt]
+    paths: [brakeman.json]
   only:
     refs:
       - branches
