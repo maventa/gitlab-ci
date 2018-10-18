@@ -89,16 +89,13 @@ dast:
       - $DAST_PORT
 
 # bundler-audit
-dependency_scanning:
+dependency_scanning:apps:
   extends: .cache
   stage: analysis
-  image: ruby:2.5.1
   allow_failure: true
   script:
     - export GEM_HOME=.cache/
-    - bundle_install_for_gems
     - grep "ruby " Gemfile > current_ruby_version.txt
-    - grep -v "ruby " Gemfile > temp && mv temp Gemfile
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
@@ -114,6 +111,30 @@ dependency_scanning:
       - branches
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
+      - $YES_THIS_IS_THE_APPS_GROUP
+
+dependency_scanning:gems:
+  extends: .cache
+  stage: analysis
+  image: ruby:2.5.1
+  allow_failure: true
+  script:
+    - export GEM_HOME=.cache/
+    - bundle install --jobs $(nproc) --path=$CACHE_LOCATION
+    - gem install bundler bundler-audit
+    - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
+    - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - bundler_audit.txt
+      - bundler_outdated.txt
+  only:
+    refs:
+      - branches
+    variables:
+      - $DEPENDENCY_SCANNING_ENABLED
+      - $YES_THIS_IS_THE_GEMS_GROUP
 
 # clair
 container_scanning: &container_scanning
@@ -227,14 +248,6 @@ analysis_report:
     while( ! wget -T 10 -q -O /dev/null http://docker:6060/v1/namespaces ) ; do sleep 1 ; echo -n "." ; if [ $retries -eq 10 ] ; then echo " Timeout, aborting." ; exit 1 ; fi ; retries=$(($retries+1)) ; done
     ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME || true
   }
-
-
-  function bundle_install_for_gems() {
-    if [ -n "$YES_THIS_IS_THE_GEMS_GROUP" ]; then
-      bundle install --jobs $(nproc) --path=$CACHE_LOCATION
-    fi
-  }
-
 
   function setup_docker() {
     if ! docker info &>/dev/null; then
