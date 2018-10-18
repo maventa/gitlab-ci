@@ -111,7 +111,9 @@ dependency_scanning:apps:
       - branches
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
-      - $YES_THIS_IS_THE_APPS_GROUP
+  except:
+    variables:
+      - $YES_THIS_IS_THE_APPS_GROUP == null
 
 dependency_scanning:gems:
   extends: .cache
@@ -134,7 +136,9 @@ dependency_scanning:gems:
       - branches
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
-      - $YES_THIS_IS_THE_GEMS_GROUP
+  except:
+    variables:
+      - $YES_THIS_IS_THE_GEMS_GROUP == null
 
 # clair
 container_scanning: &container_scanning
