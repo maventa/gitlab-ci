@@ -197,7 +197,7 @@ analysis_report:
   image: ruby:2.5.1
   script:
     - gem install gitlab
-    - gem install project_support -v 2.0.8.6.g8bad0a3 --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
+    - gem install project_support --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
     - ai_report_issues -t bundler_outdated -i bundler_outdated.txt
     - ai_report_issues -t ruby_version -i new_ruby_versions.txt
     - ai_report_issues -t brakeman -i brakeman.json
