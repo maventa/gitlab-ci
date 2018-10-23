@@ -16,16 +16,6 @@ manual_build_gem:
 
 .init_build_gem: &init_build_gem |
 
-  function init_git_user {
-    git config --global user.email "$GITLAB_USER_EMAIL"
-    git config --global user.name  "$GITLAB_USER_NAME"
-  }
-
-  function init_ssh {
-    mkdir -p ~/.ssh && echo "$MERGE_SSH_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-    ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-  }
-
   function enable_gemstash_key() {
     mkdir -p ~/.gem && touch ~/.gem/credentials && chmod 0600 ~/.gem/credentials
     echo "---" >> ~/.gem/credentials
@@ -34,20 +24,12 @@ manual_build_gem:
 
   function build_gem() {
     enable_gemstash_key
-    init_git_user
-    init_ssh
-
-    COMPLETE_URL=$(echo $CI_REPOSITORY_URL | perl -pe 's#.*@(.+?(\:\d+)?)/#git@\1:#')
 
     VERSION_NO=$(git describe --tags | sed "s/[-]/./g")
     echo $VERSION_NO > version
     gem build *.gemspec
 
     for i in *.gem; do gem push --key gemstash_gitlab --host $BUNDLE_GEMSTASH_HOSTNAME  $i; done
-
-    git remote set-url --push origin $COMPLETE_URL \
-    && git commit --allow-empty -m "Tagged release $VERSION_NO [ci skip]" version \
-    && git push origin $CI_COMMIT_REF_NAME
   }
 
 before_script:
