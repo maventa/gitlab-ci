@@ -233,6 +233,9 @@ manual_container_scanning:
   except:
     - master
     - dev
+  only:
+    variables:
+      - $CONTAINER_SCANNING_ENABLED
   when: manual
 
 # git secrets / trufflehog
