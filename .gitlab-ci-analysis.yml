@@ -126,11 +126,13 @@ dependency_scanning:gems:
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
+    - touch new_ruby_versions.txt
   artifacts:
     expire_in: 1 month
     paths:
       - bundler_audit.txt
       - bundler_outdated.txt
+      - new_ruby_versions.txt
   only:
     refs:
       - branches
@@ -195,6 +197,7 @@ git_secrets_scanning:
 analysis_report:
   stage: analysis_report
   image: ruby:2.5.1
+  allow_failure: true
   script:
     - gem install gitlab
     - gem install project_support --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
