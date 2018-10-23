@@ -126,11 +126,13 @@ dependency_scanning:gems:
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
+    - touch new_ruby_versions.txt
   artifacts:
     expire_in: 1 month
     paths:
       - bundler_audit.txt
       - bundler_outdated.txt
+      - new_ruby_versions.txt
   only:
     refs:
       - branches
