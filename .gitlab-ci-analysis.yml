@@ -270,6 +270,9 @@ analysis_report:
     - ai_report_issues -t bundler_outdated -i bundler_outdated.txt
     - ai_report_issues -t ruby_version -i new_ruby_versions.txt
     - ai_report_issues -t brakeman -i brakeman.json
+  only:
+    refs:
+      - branches
   dependencies:
     - code_quality
     - brakeman
