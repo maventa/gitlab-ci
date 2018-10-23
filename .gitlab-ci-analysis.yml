@@ -157,7 +157,7 @@ dependency_scanning:apps:
     - export GEM_HOME=.cache/
     - grep "ruby " Gemfile > current_ruby_version.txt
     - gem install bundler bundler-audit
-    - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
+    - .cache/bin/bundler-audit --update -q -v | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
     - wget --quiet -O - https://www.ruby-lang.org/en/downloads/releases/ | grep '<td>Ruby' | cut -d ">" -f 2 | grep '</td' | grep -v preview | cut -d "<" -f 1 | cut -d " " -f 2 | grep -v rc | sort | awk -v x=$(cat current_ruby_version.txt | cut -d " " -f 2 | cut -d "'" -f 2) '$1 > x' | sed -e 's/$/ new Ruby version available/' > new_ruby_versions.txt
   artifacts:
@@ -186,7 +186,7 @@ dependency_scanning:gems:
     - export GEM_HOME=.cache/
     - bundle install --jobs $(nproc) --path=$CACHE_LOCATION
     - gem install bundler bundler-audit
-    - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
+    - .cache/bin/bundler-audit bundler-audit check --update -q -v | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
   artifacts:
     expire_in: 1 month
@@ -271,6 +271,7 @@ analysis_report:
     - gem install gitlab
     - gem install project_support --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
     - ai_report_issues -t bundler_outdated -i bundler_outdated.txt
+    - ai_report_issues -t bundler_audit -i bundler_audit.txt
     - ai_report_issues -t ruby_version -i new_ruby_versions.txt
     - ai_report_issues -t brakeman -i brakeman.json
   only:
