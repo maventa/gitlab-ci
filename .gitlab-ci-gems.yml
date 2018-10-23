@@ -1,3 +1,21 @@
+.init_build_gem: &init_build_gem |
+
+  function enable_gemstash_key() {
+    mkdir -p ~/.gem && touch ~/.gem/credentials && chmod 0600 ~/.gem/credentials
+    echo "---" >> ~/.gem/credentials
+    echo :gemstash_gitlab: $BUNDLE_GEMSTASH_PASSWORD >> ~/.gem/credentials
+  }
+
+  function build_gem() {
+    enable_gemstash_key
+
+    VERSION_NO=$(git describe --tags | sed "s/[-]/./g")
+    echo $VERSION_NO > version
+    gem build *.gemspec
+
+    for i in *.gem; do gem push --key gemstash_gitlab --host $BUNDLE_GEMSTASH_HOSTNAME  $i; done
+  }
+
 build_gem: &build_gem
   stage: build
   image: ruby:2.5.1
@@ -17,21 +35,3 @@ manual_build_gem:
   except:
     - master
   when: manual
-
-.init_build_gem: &init_build_gem |
-
-  function enable_gemstash_key() {
-    mkdir -p ~/.gem && touch ~/.gem/credentials && chmod 0600 ~/.gem/credentials
-    echo "---" >> ~/.gem/credentials
-    echo :gemstash_gitlab: $BUNDLE_GEMSTASH_PASSWORD >> ~/.gem/credentials
-  }
-
-  function build_gem() {
-    enable_gemstash_key
-
-    VERSION_NO=$(git describe --tags | sed "s/[-]/./g")
-    echo $VERSION_NO > version
-    gem build *.gemspec
-
-    for i in *.gem; do gem push --key gemstash_gitlab --host $BUNDLE_GEMSTASH_HOSTNAME  $i; done
-  }
