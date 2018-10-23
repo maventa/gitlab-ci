@@ -13,6 +13,8 @@ code_quality:
   stage: analysis
   image: ruby:2.5.1
   allow_failure: true
+  before_script:
+    - *auto_devops
   script:
     - export GEM_HOME=.cache/
     - gem install rubycritic
@@ -32,6 +34,8 @@ brakeman:
   stage: analysis
   image: ruby:2.5.1
   allow_failure: true
+  before_script:
+    - *auto_devops
   script:
     - export GEM_HOME=.cache/
     - gem install brakeman
@@ -54,6 +58,8 @@ sast:
   allow_failure: true
   services:
     - docker:stable-dind
+  before_script:
+    - *auto_devops
   script:
     - setup_docker
     - sast
@@ -74,6 +80,8 @@ dast:
   allow_failure: true
   services:
     - docker:stable-dind
+  before_script:
+    - *auto_devops
   script:
     - setup_configs
     - docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASSWORD
@@ -93,6 +101,8 @@ dependency_scanning:apps:
   extends: .cache
   stage: analysis
   allow_failure: true
+  before_script:
+    - *auto_devops
   script:
     - export GEM_HOME=.cache/
     - grep "ruby " Gemfile > current_ruby_version.txt
@@ -120,19 +130,19 @@ dependency_scanning:gems:
   stage: analysis
   image: ruby:2.5.1
   allow_failure: true
+  before_script:
+    - *auto_devops
   script:
     - export GEM_HOME=.cache/
     - bundle install --jobs $(nproc) --path=$CACHE_LOCATION
     - gem install bundler bundler-audit
     - .cache/bin/bundler-audit check --update | tee bundler_audit.txt || true
     - .cache/bin/bundler outdated --parseable | tee bundler_outdated.txt || true
-    - touch new_ruby_versions.txt
   artifacts:
     expire_in: 1 month
     paths:
       - bundler_audit.txt
       - bundler_outdated.txt
-      - new_ruby_versions.txt
   only:
     refs:
       - branches
@@ -151,6 +161,8 @@ container_scanning: &container_scanning
   allow_failure: true
   services:
     - docker:stable-dind
+  before_script:
+    - *auto_devops
   script:
     - setup_docker
     - container_scanning
@@ -182,6 +194,8 @@ git_secrets_scanning:
   allow_failure: true
   services:
     - docker:stable-dind
+  before_script:
+    - *auto_devops
   script:
     - setup_docker
     - docker run -v $CI_PROJECT_DIR:/git mojdigitalstudio/git-secrets-ahoy --json | tee trufflehog.txt || true
@@ -198,6 +212,8 @@ analysis_report:
   stage: analysis_report
   image: ruby:2.5.1
   allow_failure: true
+  before_script:
+    - *auto_devops
   script:
     - gem install gitlab
     - gem install project_support --source https://$BUNDLE_GEMSTASH_PASSWORD@$BUNDLE_GEMSTASH_HOST
@@ -266,7 +282,3 @@ analysis_report:
       fi
     fi
   }
-
-
-before_script:
-  - *auto_devops

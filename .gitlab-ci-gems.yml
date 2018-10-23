@@ -1,6 +1,8 @@
 build_gem: &build_gem
   stage: build
   image: ruby:2.5.1
+  before_script:
+    - *init_build_gem
   script:
     - build_gem
   only:
@@ -10,6 +12,8 @@ manual_build_gem:
   <<: *build_gem
   only:
     - branches
+  before_script:
+    - *init_build_gem
   except:
     - master
   when: manual
@@ -31,6 +35,3 @@ manual_build_gem:
 
     for i in *.gem; do gem push --key gemstash_gitlab --host $BUNDLE_GEMSTASH_HOSTNAME  $i; done
   }
-
-before_script:
-  - *init_build_gem
