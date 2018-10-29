@@ -7,6 +7,7 @@
     DATABASE_URL: "mysql2://mariadb/$CI_PROJECT_NAME"
     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: "true"
+    SPEC_OPTS: "--pattern 'spec/**/*_spec.rb'"
   artifacts:
     paths:
       - log/
