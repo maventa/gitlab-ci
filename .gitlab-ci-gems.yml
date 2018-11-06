@@ -9,7 +9,7 @@
   function build_gem() {
     enable_gemstash_key
 
-    VERSION_NO=$(git describe --tags | sed "s/[-]/./g")
+    VERSION_NO=$(git describe --tags | cut -d '-' -f 1,2 | sed "s/[-]/./g")
     echo $VERSION_NO > version
     gem build *.gemspec
 
