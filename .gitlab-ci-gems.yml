@@ -15,6 +15,7 @@
       VERSION_NO=$(echo $GIT_TAG | cut -d '-' -f 1,2 | sed "s/[-]/./g")
       VERSION_NO+="."
       VERSION_NO+=$(date +%s)
+      VERSION_NO+=".pre"
     else
       VERSION_NO=$GIT_TAG
     fi
