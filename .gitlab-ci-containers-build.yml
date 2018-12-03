@@ -8,3 +8,6 @@ build_docker_image: &build_docker_image
   script:
     - docker build -t $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME .
     - docker push $DOCKERHUB_GROUPNAME/$CI_PROJECT_NAME:$CI_BUILD_REF_NAME
+  except:
+    - master
+    - dev
