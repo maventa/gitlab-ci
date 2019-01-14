@@ -74,7 +74,8 @@ code_quality:
     paths: [tmp/rubycritic/*]
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $CODE_QUALITY_ENABLED
 
@@ -95,7 +96,8 @@ brakeman:
     paths: [brakeman.json]
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $BRAKEMAN_ENABLED
 
@@ -118,7 +120,8 @@ sast:
     paths: [gl-sast-report.json]
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $SAST_ENABLED
 
@@ -168,7 +171,8 @@ dependency_scanning:apps:
       - new_ruby_versions.txt
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
   except:
@@ -195,7 +199,8 @@ dependency_scanning:gems:
       - bundler_outdated.txt
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $DEPENDENCY_SCANNING_ENABLED
   except:
@@ -229,7 +234,8 @@ container_scanning: &container_scanning
 manual_container_scanning:
   <<: *container_scanning
   only:
-    - branches
+    - master
+    - dev
   except:
     - master
     - dev
@@ -257,7 +263,8 @@ git_secrets_scanning:
     paths: [trufflehog.txt]
   only:
     refs:
-      - branches
+      - master
+      - dev
     variables:
       - $GIT_SECRETS_SCANNING_ENABLED
 
@@ -276,7 +283,8 @@ analysis_report:
     - ai_report_issues -t brakeman -i brakeman.json
   only:
     refs:
-      - branches
+      - master
+      - dev
   dependencies:
     - code_quality
     - brakeman
