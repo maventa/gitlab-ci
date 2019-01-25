@@ -28,13 +28,16 @@
 
 build_gem: &build_gem
   stage: build
-  image: ruby:2.5.1
+  image: ruby:2.5.3
   before_script:
     - *init_build_gem
   script:
     - build_gem
   only:
-  - tags
+    - tags
+  artifacts:
+    paths:
+    - version
 
 manual_build_gem:
   <<: *build_gem
